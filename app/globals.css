@@ -151,7 +151,7 @@
   }
 }
 
-#fade-layer {
+.fade-layer {
   mask-image: linear-gradient(
     to top,
     rgba(0, 0, 0, 0),

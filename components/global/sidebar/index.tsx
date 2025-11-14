@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -13,10 +13,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useQueryData } from "@/hooks/use-query-data";
 import { getWorkSpaces } from "@/actions/workspace";
-import { WorkspaceProps } from "@/types/index.type";
+import { NotificationsProps, WorkspaceProps } from "@/types/index.type";
 import Model from "../model";
 import { PlusCircleIcon } from "lucide-react";
 import WorkspaceSearch from "../search";
+import Search from "../search";
+import { MENU_ITEMS } from "@/constants";
+import { SidebarItem } from "./sidebar-item";
+import { getNotifications } from "@/actions/user";
+import WorkspacePlaceHolder from "./workspace-placeholder";
 
 type Props = {
   activeWorkspaceId: string;
@@ -24,13 +29,26 @@ type Props = {
 
 const Sidebar = ({ activeWorkspaceId }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { data, isFetched } = useQueryData(["user-workspaces"], getWorkSpaces);
+
+  const menuItems = MENU_ITEMS(activeWorkspaceId);
+
+  const { data: notifications } = useQueryData(
+    ["user-notifications"],
+    getNotifications
+  );
+
   const { data: workspace } = data as WorkspaceProps;
+  const { data: count } = notifications as NotificationsProps;
 
   const onChangeActiveWorkspace = (value: string) => {
     router.push(`/dashboard/${value}`);
   };
+  const currentWorkspace = workspace.workspace.find(
+    (ws) => ws.id === activeWorkspaceId
+  );
 
   return (
     <div className="bg-[#111111] flex-none relative p-4 h-full w-[250px] flex flex-col items-center gap-4 overflow-hidden">
@@ -42,10 +60,10 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
         defaultValue={activeWorkspaceId}
         onValueChange={onChangeActiveWorkspace}
       >
-        <SelectTrigger className="mt-16 text-neutral-400 bg-transparent">
+        <SelectTrigger className="mt-16 text-neutral-400 bg-transparent w-full">
           <SelectValue placeholder="Select a workspace"></SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-[#111111] backdrop-blur-xl">
+        <SelectContent className="bg-[#111111] backdrop-blur-xl w-full">
           <SelectGroup>
             <SelectLabel>Personal Workspaces</SelectLabel>
             <Separator />
@@ -73,23 +91,98 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Model
-        trigger={
-          <span className="text-sm cursor-pointer flex items-center justify-center bg-neutral-800/90 hover:bg-neutral-800/60 w-full rounded-sm p-[5px] gap-2">
-            <PlusCircleIcon
-              className="text-neutral-800/90 fill-neutral-500"
-              size={15}
+      {currentWorkspace?.type === "PUBLIC" &&
+        workspace.subscription?.plan === "PRO" && (
+          <Model
+            trigger={
+              <span className="text-sm cursor-pointer flex items-center justify-center bg-neutral-800/90 hover:bg-neutral-800/60 w-full rounded-sm p-[5px] gap-2">
+                <PlusCircleIcon
+                  className="text-neutral-800/90 fill-neutral-500"
+                  size={15}
+                />
+                <span className="text-neutral-400 font-semibold text-xs">
+                  Invite to workspace
+                </span>
+              </span>
+            }
+            title="Invite to workspace"
+            description="Invite other users to your workspace"
+          >
+            <Search workspaceId={activeWorkspaceId} />
+          </Model>
+        )}
+      <p className="w-full text-[#9d9d9d] font-bold mt-4">Menu</p>
+      <nav className="w-full">
+        <ul>
+          {menuItems.map((item) => (
+            <SidebarItem
+              key={item.title}
+              Icon={item.Icon}
+              href={item.href}
+              title={item.title}
+              selected={pathname === item.href}
+              notifications={
+                (item.title === "Notifications" &&
+                  count._count &&
+                  count._count.notification) ||
+                0
+              }
             />
-            <span className="text-neutral-400 font-semibold text-xs">
-              Invite to workspace
-            </span>
-          </span>
-        }
-        title="Invite to workspace"
-        description="Invite other users to your workspace"
-      >
-        <WorkspaceSearch workspaceId={activeWorkspaceId} />
-      </Model>
+          ))}
+        </ul>
+      </nav>
+      <Separator className="w-4/5" />
+      <p className="w-full text-[#9d9d9d] font-bold mt-4">Workspaces</p>
+      {workspace.workspace.length === 1 && workspace.members.length === 0 && (
+        <div className="w-full -mt-2">
+          <p className="text-[#9d9d9d] font-medium text-sm">
+            {workspace.subscription?.plan === "FREE"
+              ? "Upgrade to create workspaces"
+              : "No Workspaces"}
+          </p>
+        </div>
+      )}
+      <nav className="w-full">
+        <ul className="h-[150px] overflow-auto overflow-x-hidden fade-layer">
+          {workspace.workspace.length > 0 &&
+            workspace.workspace.map(
+              (item) =>
+                item.type !== "PERSONAL" && (
+                  <SidebarItem
+                    key={item.id}
+                    href={`/dashboard/${item.id}`}
+                    selected={pathname === `/dashboard/${item.id}`}
+                    title={item.name}
+                    notifications={0}
+                    workspacePlaceHolder={
+                      <WorkspacePlaceHolder>
+                        {item.name.charAt(0)}
+                      </WorkspacePlaceHolder>
+                    }
+                  />
+                )
+            )}
+          {workspace.members.length > 0 &&
+            workspace.members.map((item) => (
+              <SidebarItem
+                key={item.workspace.id}
+                href={`/dashboard/${item.workspace.id}`}
+                selected={pathname === `/dashboard/${item.workspace.id}`}
+                title={item.workspace.name}
+                notifications={0}
+                workspacePlaceHolder={
+                  <WorkspacePlaceHolder>
+                    {item.workspace.name.charAt(0)}
+                  </WorkspacePlaceHolder>
+                }
+              />
+            ))}
+        </ul>
+      </nav>
+      <Separator className="w-4/5" />
+      {workspace.subscription?.plan === "FREE" && (
+        // TODO Continue from here
+      )}
     </div>
   );
 };

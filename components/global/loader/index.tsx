@@ -9,14 +9,14 @@ type Props = {
   children: ReactNode;
 };
 
-const index = ({ state, className, color, children }: Props) => {
+const Loader = ({ state, className, color, children }: Props) => {
   return state ? (
     <div className={cn(className)}>
-      <Spinner />
+      <Spinner color={color} />
     </div>
   ) : (
     children
   );
 };
 
-export default index;
+export default Loader;
