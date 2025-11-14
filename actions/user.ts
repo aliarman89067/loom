@@ -68,3 +68,81 @@ export const onAuthenticatedUser = async () => {
     return { status: 500 };
   }
 };
+
+export const getNotifications = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 404 };
+    }
+    const notifications = await client.user.findUnique({
+      where: {
+        clerkId: user.id,
+      },
+      select: {
+        notification: true,
+        _count: {
+          select: {
+            notification: true,
+          },
+        },
+      },
+    });
+    if (notifications && notifications.notification.length) {
+      return { status: 200, data: notifications };
+    }
+
+    return { status: 404, data: [] };
+  } catch (error) {
+    return { status: 403 };
+  }
+};
+
+export const searchUsers = async (query: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) return { status: 404 };
+
+    const users = await client.user.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: query,
+            },
+          },
+          {
+            email: {
+              contains: query,
+            },
+          },
+          {
+            lastName: {
+              contains: query,
+            },
+          },
+        ],
+        NOT: [{ clerkId: user.id }],
+      },
+      select: {
+        id: true,
+        subscription: {
+          select: {
+            plan: true,
+          },
+        },
+        firstName: true,
+        lastName: true,
+        image: true,
+        email: true,
+      },
+    });
+    if (users && users.length) {
+      return { status: 200, data: users };
+    }
+    return { status: 404, data: undefined };
+  } catch (error) {
+    return { status: 500, data: undefined };
+  }
+};

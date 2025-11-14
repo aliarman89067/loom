@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MenuIcon, User } from "lucide-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export const LandingPageNavbar = () => {
   return (
@@ -21,11 +22,16 @@ export const LandingPageNavbar = () => {
         <Link href="/pricing">Pricing</Link>
         <Link href="/contact">Contact</Link>
       </div>
-      <Link href="/auth/sign-in">
-        <Button>
-          <User fill="#000" /> Login
-        </Button>
-      </Link>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+      <SignedOut>
+        <Link href="/auth/sign-in">
+          <Button>
+            <User fill="#000" /> Login
+          </Button>
+        </Link>
+      </SignedOut>
     </div>
   );
 };

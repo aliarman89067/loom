@@ -1,0 +1,36 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ReactNode } from "react";
+
+type Props = {
+  trigger: ReactNode;
+  children: ReactNode;
+  title: string;
+  description: string;
+  className?: string;
+};
+
+const Model = ({ trigger, children, title, description, className }: Props) => {
+  return (
+    <Dialog>
+      <DialogTrigger className={className} asChild>
+        {trigger}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default Model;
