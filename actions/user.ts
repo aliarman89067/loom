@@ -146,3 +146,65 @@ export const searchUsers = async (query: string) => {
     return { status: 500, data: undefined };
   }
 };
+
+export const seachInfo = async (query: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 404, data: null };
+    }
+    const info = await client.user.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: query,
+            },
+          },
+          {
+            lastName: {
+              contains: query,
+            },
+          },
+          {
+            email: {
+              contains: query,
+            },
+          },
+          {
+            workspace: {
+              some: {
+                name: {
+                  contains: query,
+                },
+              },
+            },
+          },
+        ],
+        // NOT: [
+        //   {
+        //     clerkId: user.id,
+        //   },
+        // ],
+      },
+      select: {
+        id: true,
+        subscription: {
+          select: {
+            plan: true,
+          },
+        },
+        firstName: true,
+        lastName: true,
+        image: true,
+        email: true,
+      },
+    });
+    if (info && info.length) {
+      return { status: 200, data: info };
+    }
+    return { status: 404, data: null };
+  } catch (error) {
+    return { status: 500, data: null };
+  }
+};

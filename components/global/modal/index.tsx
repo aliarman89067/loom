@@ -16,7 +16,7 @@ type Props = {
   className?: string;
 };
 
-const Model = ({ trigger, children, title, description, className }: Props) => {
+const Modal = ({ trigger, children, title, description, className }: Props) => {
   return (
     <Dialog>
       <DialogTrigger className={className} asChild>
@@ -33,4 +33,4 @@ const Model = ({ trigger, children, title, description, className }: Props) => {
   );
 };
 
-export default Model;
+export default Modal;

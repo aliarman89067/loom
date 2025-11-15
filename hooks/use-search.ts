@@ -1,8 +1,8 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useQueryData } from "./use-query-data";
-import { searchUsers } from "@/actions/user";
+import { seachInfo, searchUsers } from "@/actions/user";
 
-export const useSearch = (key: string, type: "USERS") => {
+export const useSearch = (key: string, type: "USERS" | "INFO") => {
   const [query, setQuery] = useState("");
   const [debounce, setDebounce] = useState("");
   const [onUsers, setOnUsers] = useState<
@@ -39,6 +39,12 @@ export const useSearch = (key: string, type: "USERS") => {
           setOnUsers(workspace.data);
         }
       }
+      if (type === "INFO") {
+        const info = await seachInfo(query);
+        if (info.status === 200 && info.data) {
+          setOnUsers(info.data);
+        }
+      }
     },
     false
   );
@@ -46,9 +52,6 @@ export const useSearch = (key: string, type: "USERS") => {
   useEffect(() => {
     if (debounce) refetch();
     if (!debounce) setOnUsers(undefined);
-    return () => {
-      debounce;
-    };
   }, [debounce]);
 
   return { onSearchQuery, query, isFetching, onUsers };
