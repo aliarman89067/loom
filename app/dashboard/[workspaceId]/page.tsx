@@ -1,6 +1,4 @@
-import React from "react";
 import { WorkspacePage } from "@/components/global/workspace";
-import { Tabs } from "@/components/ui/tabs";
 
 type Props = {
   params: Promise<{

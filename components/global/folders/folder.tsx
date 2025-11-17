@@ -4,7 +4,10 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import Loader from "../loader";
 import { FolderIcon } from "lucide-react";
-import { useMutationData } from "@/hooks/use-mutation-data";
+import {
+  useMutationData,
+  useMutationDataState,
+} from "@/hooks/use-mutation-data";
 import { renameFolders } from "@/actions/workspace";
 import { Input } from "@/components/ui/input";
 
@@ -35,6 +38,7 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
     onSuccess: renamed,
   });
 
+  const { latestVariables } = useMutationDataState(["rename-folders"]);
   const handleFolderClick = () => {
     router.push(`${pathname}/folder/${id}`);
   };
@@ -47,16 +51,9 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
   const updateFolderName = (
     e: React.FocusEvent<HTMLInputElement | Element>
   ) => {
-    if (inputRef.current && folderCardRef.current) {
-      if (
-        !inputRef.current.contains(event?.target as Node) &&
-        !folderCardRef.current.contains(event?.target as Node)
-      ) {
-        if (inputRef.current.value) {
-          mutate({ name: inputRef.current.value });
-        } else renamed();
-      }
-    }
+    if (inputRef.current && inputRef.current.value) {
+      mutate({ name: inputRef.current.value, id });
+    } else renamed();
   };
 
   return (
@@ -64,6 +61,7 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
       onClick={handleFolderClick}
       ref={folderCardRef}
       className={cn(
+        optimistic && "opacity-60",
         "flex hover:bg-neutral-800 transition-all cursor-pointer duration-150 items-center gap-2 justify-between min-w-[250px] py-6 px-4 rounded-lg border"
       )}
     >
@@ -76,7 +74,7 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
               autoFocus
               onClick={(e) => e.stopPropagation()}
               placeholder={name}
-              className="border-none underline underline-offset-4 px-2 text-base w-full outline-0 text-neutral-300 bg-transparent py-0"
+              className="border-none px-2 text-base w-full outline-0 text-neutral-300 bg-transparent py-0"
             />
           ) : (
             <p
@@ -84,7 +82,11 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
               className="text-neutral-300"
               onDoubleClick={handleNameDoubleClick}
             >
-              {name}
+              {latestVariables &&
+              latestVariables.status === "pending" &&
+              latestVariables.variables.id === id
+                ? latestVariables.variables.name
+                : name}
             </p>
           )}
           <span className="text-sm text-neutral-500">{count || 0} Videos</span>

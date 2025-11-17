@@ -9,6 +9,7 @@ import { getNotifications, onAuthenticatedUser } from "@/actions/user";
 import Sidebar from "@/components/global/sidebar";
 import {
   getAllUserVideos,
+  getRecentVideos,
   getWorkspaceFolders,
   getWorkSpaces,
   verifyAccessToWorkSpace,
@@ -51,6 +52,10 @@ const Layout = async ({ params, children }: Props) => {
   await query.prefetchQuery({
     queryKey: ["user-notifications"],
     queryFn: () => getNotifications(),
+  });
+  await query.prefetchQuery({
+    queryKey: ["get-recent-videos"],
+    queryFn: () => getRecentVideos(workspaceId),
   });
 
   return (

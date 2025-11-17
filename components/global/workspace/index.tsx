@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateWorkspace from "../create-workspace";
 import CreateFolders from "../create-folders";
 import Folders from "../folders";
+import RecentVideos from "../videos/recent-videos";
 
 type Props = {
   workspaceId: string;
@@ -34,6 +35,7 @@ export const WorkspacePage = ({ workspaceId }: Props) => {
         <section className="py-9">
           <TabsContent value="videos">
             <Folders workspaceId={workspaceId} />
+            <RecentVideos workspaceId={workspaceId} />
           </TabsContent>
         </section>
       </Tabs>

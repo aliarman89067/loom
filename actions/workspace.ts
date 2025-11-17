@@ -213,3 +213,117 @@ export const renameFolders = async (folderId: string, name: string) => {
     return { status: 500, data: "Something went wrong" };
   }
 };
+
+export const createFolder = async (workspaceId: string) => {
+  try {
+    const isNewFolder = await client.workSpace.update({
+      where: {
+        id: workspaceId,
+      },
+      data: {
+        folders: {
+          create: { name: "Untitled" },
+        },
+      },
+    });
+    if (isNewFolder) {
+      return { status: 200, message: "New folder created" };
+    }
+    return { status: 200, message: "New folder created" };
+  } catch (error) {
+    return { status: 500, message: "Something went wrong" };
+  }
+};
+
+export const getFolderInfo = async (folderId: string) => {
+  try {
+    const folderInfo = await client.folder.findUnique({
+      where: {
+        id: folderId,
+      },
+      select: {
+        id: true,
+        name: true,
+        videos: true,
+        _count: {
+          select: {
+            videos: true,
+          },
+        },
+        createdAt: true,
+      },
+    });
+    if (folderInfo) {
+      return { status: 200, data: folderInfo };
+    }
+    return { status: 400, data: null };
+  } catch (error) {
+    return { status: 500 };
+  }
+};
+
+export const moveVideoLocation = async (
+  videoId: string,
+  workSpaceId: string,
+  folderId: string
+) => {
+  try {
+    const location = await client.video.update({
+      where: {
+        id: videoId,
+      },
+      data: {
+        folderId: folderId || null,
+        workSpaceId,
+      },
+    });
+    if (location) return { status: 200, data: "Folder changed successfully" };
+    return { status: 404, data: "Workspace/Folder not found" };
+  } catch (error) {
+    return { status: 500, data: "Something went wrong" };
+  }
+};
+
+export const getRecentVideos = async (workspaceId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 401, data: "Unauthorized user" };
+    }
+    const videos = await client.video.findMany({
+      where: {
+        workSpaceId: workspaceId,
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        source: true,
+        processing: true,
+        folder: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+    });
+    if (videos && videos.length) {
+      return { status: 200, data: videos };
+    }
+    return { status: 404, data: null };
+  } catch (error) {
+    return { status: 500 };
+  }
+};
