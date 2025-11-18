@@ -327,3 +327,49 @@ export const getRecentVideos = async (workspaceId: string) => {
     return { status: 500 };
   }
 };
+
+export const getPreviewVideo = async (videoId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) return { status: 400 };
+
+    const video = await client.video.findUnique({
+      where: {
+        id: videoId,
+      },
+      select: {
+        title: true,
+        createdAt: true,
+        source: true,
+        processing: true,
+        views: true,
+        summery: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            image: true,
+            clerkId: true,
+            trial: true,
+            subscription: {
+              select: {
+                plan: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (video) {
+      return {
+        status: 200,
+        data: video,
+        author: user.id === video.user?.clerkId ? true : false,
+      };
+    }
+    return { status: 404 };
+  } catch (error) {
+    return { status: 500 };
+  }
+};
