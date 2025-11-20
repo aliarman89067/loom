@@ -8,6 +8,8 @@ import RichLink from "../rich-link";
 import { truncateString } from "@/lib/utils";
 import { DownloadIcon } from "lucide-react";
 import TabsMenu from "../../tabs";
+import AiTools from "../../ai-tools";
+import VideoTranscript from "../../video-transcript";
 
 type Props = {
   videoId: string;
@@ -96,11 +98,17 @@ const VideoPreview = ({ videoId }: Props) => {
           <DownloadIcon className="text-[#4D4C4C]" />
         </div>
         <div>
-          {/* TODO: Continue from here */}
           <TabsMenu
-            trigger={["all", "summary", "activity"]}
-            defaultValue="all"
-          ></TabsMenu>
+            triggers={["Ai tools", "Transcript", "Activity"]}
+            defaultValue="Ai tools"
+          >
+            <AiTools
+              videoId={videoId}
+              trial={video.user?.trial!}
+              plan={video.user?.subscription.plan!}
+            />
+            <VideoTranscript transcript={video.description!} />
+          </TabsMenu>
         </div>
       </div>
     </div>
