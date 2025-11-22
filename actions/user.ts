@@ -208,3 +208,170 @@ export const seachInfo = async (query: string) => {
     return { status: 500, data: null };
   }
 };
+
+export const getPaymentInfo = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 404 };
+    }
+    const payment = await client.user.findUnique({
+      where: {
+        clerkId: user.id,
+      },
+      select: {
+        subscription: {
+          select: { plan: true },
+        },
+      },
+    });
+    if (payment) {
+      return { status: 200, data: payment };
+    }
+    return { status: 404 };
+  } catch (error) {
+    return { status: 500 };
+  }
+};
+
+export const enabledFirstView = async (state: boolean) => {
+  try {
+    const user = await currentUser();
+    if (!user) return { status: 404 };
+    const view = await client.user.update({
+      where: {
+        clerkId: user.id,
+      },
+      data: {
+        firstView: state,
+      },
+    });
+    if (view) {
+      return { status: 200, data: "Setting updated" };
+    }
+  } catch (error) {
+    return { status: 500 };
+  }
+};
+
+export const getFirstView = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) return { status: 404 };
+    const userData = await client.user.findUnique({
+      where: {
+        clerkId: user.id,
+      },
+      select: {
+        firstView: true,
+      },
+    });
+    if (userData) {
+      return { status: 200, data: userData.firstView };
+    }
+    return { status: 400, data: false };
+  } catch (error) {
+    return { status: 500 };
+  }
+};
+
+export const createCommentAndReply = async (
+  userId: string,
+  comment: string,
+  videoId: string,
+  commentId?: string | undefined
+) => {
+  try {
+    if (commentId) {
+      const reply = await client.comment.update({
+        where: {
+          id: commentId,
+        },
+        data: {
+          reply: {
+            create: {
+              comment,
+              userId,
+              videoId,
+            },
+          },
+        },
+      });
+      if (reply) {
+        return { status: 200, data: "Reply Posted" };
+      }
+    } else {
+      const newComment = await client.video.update({
+        where: {
+          id: videoId,
+        },
+        data: {
+          comments: {
+            create: {
+              comment,
+              userId,
+            },
+          },
+        },
+      });
+      if (newComment) {
+        return { status: 200, data: "New comment added" };
+      }
+    }
+  } catch (error) {
+    return { status: 500 };
+  }
+};
+
+export const getUserProfile = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 404 };
+    }
+    const profileIdAndImage = await client.user.findUnique({
+      where: {
+        clerkId: user.id,
+      },
+      select: {
+        id: true,
+        image: true,
+      },
+    });
+    if (profileIdAndImage) {
+      return { status: 200, data: profileIdAndImage };
+    }
+  } catch (error) {
+    return { status: 400 };
+  }
+};
+
+export const getVideoComments = async (id: string) => {
+  try {
+    const comments = await client.comment.findMany({
+      where: {
+        OR: [
+          {
+            videoId: id,
+          },
+          {
+            commentId: id,
+          },
+        ],
+        commentId: null,
+      },
+      include: {
+        reply: {
+          include: {
+            user: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    return { status: 200, data: comments };
+  } catch (error) {
+    return { status: 404 };
+  }
+};

@@ -5,13 +5,13 @@ type Props = {
   transcript: string;
 };
 
-const VideoTranscript = (props: Props) => {
+const VideoTranscript = ({ transcript }: Props) => {
   return (
     <TabsContent
       value="Transcript"
       className="p-5 bg-[#1D1D1D] rounded-xl flex flex-col gap-y-6"
     >
-      VideoTranscript
+      <p className="text-[#7A7A7A]">{transcript || "No Description"}</p>
     </TabsContent>
   );
 };

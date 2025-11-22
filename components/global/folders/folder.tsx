@@ -65,7 +65,7 @@ const Folder = ({ id, name, optimistic, count }: Props) => {
         "flex hover:bg-neutral-800 transition-all cursor-pointer duration-150 items-center gap-2 justify-between min-w-[250px] py-6 px-4 rounded-lg border"
       )}
     >
-      <Loader state={false}>
+      <Loader state={isPending}>
         <div className="flex flex-col gap-1">
           {onRename ? (
             <Input

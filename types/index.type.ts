@@ -88,3 +88,45 @@ export type VideoProps = {
     summery: string;
   };
 };
+
+export type CommentRepliesProps = {
+  id: string;
+  comment: string;
+  createdAt: Date;
+  commentId: string | null;
+  userId: string | null;
+  videoId: string | null;
+  user: {
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+    clerkId: string;
+    image: string | null;
+    createdAt: Date;
+    trial: boolean;
+    firstView: boolean;
+  } | null;
+};
+
+export type VideoCommentProps = {
+  data: {
+    user: {
+      id: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      createdAt: Date;
+      image: string | null;
+      trial: boolean;
+      firstView: boolean;
+    } | null;
+    reply: CommentRepliesProps[];
+    id: string;
+    comment: string;
+    createdAt: Date;
+    commentId: string | null;
+    userId: string | null;
+    videoId: string | null;
+  }[];
+};

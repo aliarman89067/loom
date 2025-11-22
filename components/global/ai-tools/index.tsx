@@ -23,7 +23,7 @@ const AiTools = ({ plan, trial, videoId }: Props) => {
   return (
     <TabsContent
       value="Ai tools"
-      className="p-5 bg-[#1D1D1D] rounded-xl flex flex-col gap-y-10"
+      className="p-2 bg-[#1D1D1D] rounded-xl flex flex-col gap-y-10"
     >
       <div className="flex items-center">
         <div className="flex flex-col gap-4">
@@ -53,7 +53,7 @@ const AiTools = ({ plan, trial, videoId }: Props) => {
               </Button>
             </div>
           </div>
-          <div className="border rounded-xl p-4 flex flex-col gap-y-2 bg-[#1b0f1b7f]">
+          <div className="w-full border rounded-xl p-4 flex flex-col gap-y-2 bg-[#1b0f1b7f]">
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-bold text-[#a22fe0]">Opal Ai</h2>
               <StarsIcon className="text-[#a22fe0] fill-[#a22fe0]" />

@@ -10,6 +10,8 @@ import { DownloadIcon } from "lucide-react";
 import TabsMenu from "../../tabs";
 import AiTools from "../../ai-tools";
 import VideoTranscript from "../../video-transcript";
+import { TabsContent } from "@/components/ui/tabs";
+import Activities from "../../activities";
 
 type Props = {
   videoId: string;
@@ -17,6 +19,7 @@ type Props = {
 
 const VideoPreview = ({ videoId }: Props) => {
   // WIP: Setup notify first view
+  // WIP: Setup activity
   const router = useRouter();
   const { data } = useQueryData(["preview-video"], () =>
     getPreviewVideo(videoId)
@@ -32,7 +35,7 @@ const VideoPreview = ({ videoId }: Props) => {
   );
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 p-10 lg:px-20 lg:py-10 overflow-y-auto gap-5">
+    <div className="grid grid-cols-1 xl:grid-cols-3 p-10 lg:px-5 lg:py-10 overflow-y-auto gap-5">
       <div className="flex flex-col lg:col-span-2 gap-y-10">
         <div>
           <div className="flex gap-x-5 items-start justify-between">
@@ -108,6 +111,10 @@ const VideoPreview = ({ videoId }: Props) => {
               plan={video.user?.subscription.plan!}
             />
             <VideoTranscript transcript={video.description!} />
+            <Activities
+              author={video.user?.firstName as string}
+              videoId={videoId}
+            />
           </TabsMenu>
         </div>
       </div>

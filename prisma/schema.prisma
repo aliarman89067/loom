@@ -29,9 +29,24 @@ model User {
   notification  Notification[]
   sender        Invite[]  @relation("sender")
   reciever      Invite[]  @relation("reciever")
-  trial         Boolean @default(false)
+  trial         Boolean   @default(false)
+  firstView     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  comments      Comment[]
+}
+
+model Comment {
+  id            String @unique @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  comment       String
+  reply         Comment[] @relation("reply")
+  commentId     String? @db.Uuid
+  Comment       Comment? @relation("reply", fields: [commentId], references: [id], onDelete: Cascade)
+  userId        String? @db.Uuid
+  user          User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId       String? @db.Uuid
+  video         Video? @relation(fields: [videoId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }
 
 model Subscription {
@@ -95,6 +110,7 @@ model Video {
   workSpace     WorkSpace? @relation(fields: [workSpaceId], references: [id], onDelete: Cascade)
   views         Int @default(0)
   summery       String?
+  comments      Comment[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
